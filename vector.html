@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+	<title>mapBox Demo</title>
+	<script src="mapbox/mapbox-gl.js"></script>
+	<link href="mapbox/mapbox-gl.css" rel="stylesheet" />
+	<style type="text/css">
+		body {
+			margin: 0;
+			padding: 0;
+		}
+
+		#map {
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+		}
+
+		#swatches {
+			position: absolute;
+			top: 10px;
+			left: 10px;
+			width: 200px;
+		}
+
+		#swatches button {
+			display: inline-block;
+			width: 36px;
+			height: 20px;
+			border: none;
+			cursor: pointer;
+		}
+	</style>
+</head>
+
+<body>
+	<div id="map"></div>
+	<div id="swatches"></div>
+
+</body>
+
+<script>
+	var colors = [
+		'#ffffcc',
+		'#a1dab4',
+		'#41b6c4',
+		'#2c7fb8',
+		'#253494',
+		'#fed976',
+		'#feb24c',
+		'#fd8d3c',
+		'#f03b20',
+		'#bd0026'
+	];
+	// 如果是要使用mapbox的在线样式须注册accesstoken
+	mapboxgl.accessToken =
+		"pk.eyJ1IjoiZnJhbmtkb25nMDA3IiwiYSI6ImNrOXY0ZjdoYjA4MnYzbHBnYzA2aTJkeXoifQ.nB4LKjrVCergxIDQOxVGDg";
+	var map = new mapboxgl.Map({
+		container: "map",
+		style: {
+			version: 8, //必须为8
+			name: "zvmap",
+			sources: {
+				composite: {
+					tiles: ["http://localhost:8089/pbf/{z}/{x}/{y}.pbf"],
+					type: "vector"
+				}
+			},
+			layers: [{
+				id: "background",
+				//地图背景
+				type: "background",
+				layout: {},
+				paint: {
+					"background-color": "#666"
+				},
+				interactive: true
+			}, {
+				id: "3D-building",
+				type: "fill",
+				source: "composite",
+				"source-layer": "BLDPG",
+				type: "fill-extrusion",
+				layout: {},
+				minzoom: 9,
+				paint: {
+					"fill-extrusion-color": "#3fffff",
+					"fill-extrusion-height": ["to-number", ["get", "Height"]],
+					// "fill-extrusion-height": ["interpolate", ["linear"],
+					// 	["zoom"], 12, 0, 18.05, ["get", "Height"]
+					// ],
+					// "fill-extrusion-height": ["interpolate", ["linear"],
+					// 	["zoom"], 14, 0, 14.05, ["get", "Height"]
+					// ],
+					// "fill-extrusion-base": ["interpolate", ["linear"],
+					// 	["zoom"], 14, 0, 14.05, ["get", "base_height"]
+					// ],
+					// "fill-extrusion-opacity": 1
+				},
+				filter: ["==", "$type", "Polygon"]
+			}]
+		},
+		// 边界
+		maxBounds: [110.970513, 35.049351, 110.997706, 35.063066],
+		center: [110.981827, 35.053046],
+		pitch: 40, //倾斜角
+		bearing: 0, //方位角
+		zoom: 12
+	});
+	map.on("load", () => {
+		// addMarkers(getMockData());
+		// addClusterMarker()
+		// addGeojsonByOwn();
+		changeColor();
+		rotateCamera(0);
+	});
+
+	// 更改颜色
+	function changeColor() {
+		var swatches = document.getElementById('swatches');
+		colors.forEach(function (color) {
+			var button = document.createElement('button');
+			button.style.backgroundColor = color;
+			// button.addEventListener('click', function () {
+			// 	map.setPaintProperty('3D-building', 'fill-extrusion-color', color);
+			// });
+			swatches.appendChild(button);
+		});
+		var i = -1;
+		setInterval(() => {
+			i++;
+			i = i >= 10 ? 0 : i;
+			// 更改渲染颜色
+			map.setPaintProperty('3D-building', 'fill-extrusion-color', colors[i]);
+		}, 1000);
+	}
+	// 环绕某点飞行
+	function rotateCamera(timestamp) {
+		// clamp the rotation between 0 -360 degrees
+		// Divide timestamp by 100 to slow rotation to ~10 degrees / sec
+		map.rotateTo((timestamp / 100) % 360, {
+			duration: 0
+		});
+		// Request the next frame of the animation.
+		requestAnimationFrame(rotateCamera);
+	}
+
+	// 添加marker
+	function addMarkers(markers) {
+		return markers.map((marker) => {
+			let el = document.createElement("div");
+			el.id = "marker";
+			el.style.backgroundImage = `url(${marker.url})`;
+			el.style.backgroundSize = "100% 100%";
+			el.style.width = `${marker.size[0]}px`;
+			el.style.height = `${marker.size[1]}px`;
+			// el.addEventListener('click', (e) => {
+			//     e.stopPropagation();
+			//     console.log(e.target);
+			// }, false);
+			let _marker = new mapboxgl.Marker({
+					element: el, //HTML元素
+					anchor: "bottom", //设置图标点相对于经纬度的位置 (bottom 代表图标点的底部与所设置的经纬度相接) 默认center
+					draggable: false //是否可拖拽
+				})
+				.setLngLat([marker.lontitude, marker.latitude])
+				.setPopup(createPopup())
+				.addTo(map)
+				.on("dragend", (e) => {
+					console.log(e, _marker.getLngLat());
+				});
+			// .remove()
+			// .setLngLat()
+			// .setPopup(new mapboxgl.Popup())
+			// .setDraggable(shouldBeDraggable true|false)
+			return _marker;
+		});
+	}
+
+	// 全屏控件
+	map.addControl(new mapboxgl.FullscreenControl());
+	// 比例尺控件
+	map.addControl(
+		new mapboxgl.ScaleControl({
+			maxWidth: 80 //控件的最大长度
+			// unit: 'imperial' 'metric' //单位 默认米制单位
+		})
+	);
+	// 导航控件
+	map.addControl(new mapboxgl.NavigationControl());
+
+
+	// 加载地图厂商提供的含建筑高度的数据(通过工具转换的geojson数据)
+	function addGeojsonFromOther() {
+		map.addSource("main", {
+			type: "geojson",
+			data: "http://localhost:5000/BLDPG.json"
+		});
+		map.addLayer({
+			id: "park-boundary",
+			type: "fill",
+			source: "main",
+			paint: {
+				"fill-color": "#888888",
+				"fill-opacity": 0.4
+			},
+			filter: ["==", "$type", "Polygon"]
+		});
+		map.addLayer({
+			id: "park-volcanoes",
+			type: "circle",
+			source: "main",
+			paint: {
+				"circle-radius": 6,
+				"circle-color": "#B42222"
+			},
+			filter: ["==", "$type", "Point"]
+		});
+		map.addLayer({
+			id: "entity_layer",
+			type: "fill",
+			source: "main",
+			type: "fill-extrusion",
+			layout: {},
+			minzoom: 14,
+			paint: {
+				"fill-extrusion-color": "#fff",
+				"fill-extrusion-height": ["interpolate", ["linear"],
+					["zoom"], 14, 0, 14.05, ["get", "Height"]
+				],
+				"fill-extrusion-base": ["interpolate", ["linear"],
+					["zoom"], 14, 0, 14.05, ["get", "base_height"]
+				],
+				"fill-extrusion-opacity": 1
+			},
+			filter: ["==", "$type", "Polygon"]
+		});
+	}
+
+	// 加载自定义下载的geojson数据
+	function addGeojsonByOwn() {
+		map.addSource("lines", {
+			type: "geojson",
+			data: "http://localhost:8089/mvt/lines.json",
+			buffer: 0
+		});
+		map.addSource("multipolygons", {
+			type: "geojson",
+			data: "http://localhost:8089/mvt/multipolygons.json",
+			buffer: 0
+		});
+		map.addSource("points", {
+			type: "geojson",
+			data: "http://localhost:8089/mvt/points.json",
+			buffer: 0,
+			maxzoom: 12
+		});
+		map.addLayer({
+			id: "park-boundary",
+			type: "fill",
+			source: "multipolygons",
+			paint: {
+				"fill-color": "#888888",
+				"fill-opacity": 0.4
+			},
+			filter: ["==", "$type", "Polygon"]
+		});
+
+		map.addLayer({
+			id: "park-volcanoes",
+			type: "circle",
+			source: "points",
+			paint: {
+				"circle-radius": 6,
+				"circle-color": "#B42222"
+			},
+			filter: ["==", "$type", "Point"]
+		});
+	}
+
+	function isSupport() {
+		return mapboxgl.supported();
+	}
+
+	function getMockData() {
+		let data = [{
+				id: "10004",
+				lontitude: 108.96269898161594,
+				latitude: 34.268529071739074,
+				url: "./centerDevice.svg",
+				size: [20, (20 * 48) / 35]
+			},
+			{
+				id: "10005",
+				lontitude: 108.86244845161594,
+				latitude: 34.363429024739074,
+				url: "./centerDevice.svg",
+				size: [20, (20 * 48) / 35]
+			}
+		];
+		return data;
+	}
+</script>
+
+</html>

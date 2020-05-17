@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>mapBox raster Demo</title>
+    <script src="mapbox/mapbox-gl.js"></script>
+    <link href="mapbox/mapbox-gl.css" rel="stylesheet" />
+    <style type="text/css">
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        #map {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="map"></div>
+</body>
+
+<script>
+    mapboxgl.accessToken =
+        "pk.eyJ1IjoiZnJhbmtkb25nMDA3IiwiYSI6ImNrOXY0ZjdoYjA4MnYzbHBnYzA2aTJkeXoifQ.nB4LKjrVCergxIDQOxVGDg";
+    var map = new mapboxgl.Map({
+        container: "map",
+        style: {
+            version: 8, //必须为8
+            name: "raster",
+            sources: {
+                // 栅格切片
+                "raster-tiles": {
+                    type: "raster",
+                    tiles: [
+                        "https://map.geoq.cn/arcgis/rest/services/ChinaOnlineStreetPurplishBlue/MapServer/tile/{z}/{y}/{x}"
+
+                    ],
+                    tileSize: 256
+                }
+            },
+
+            layers: [{
+                id: "base-layers",
+                type: "raster",
+                source: "raster-tiles"
+
+            }]
+        },
+        // style: 'mapbox://styles/mapbox/light-v10', //在线资源
+        // 边界
+        // maxBounds: [107.56470719340847, 33.61828311442923, 110.09705582657591, 34.78358526349461],
+        // center: [108.96269898161594, 34.268529071739074],
+        maxBounds: [110.970513, 35.049351, 110.997706, 35.063066],
+        center: [110.981827, 35.053046],
+        pitch: 40, //倾斜角
+        bearing: 0, //方位角
+        zoom: 12
+    });
+    map.on("load", () => {
+        // addMarkers(getMockData());
+        // addClusterMarker()
+        addGeojsonFromOther();
+    });
+
+    // 添加marker
+    function addMarkers(markers) {
+        return markers.map((marker) => {
+            let el = document.createElement("div");
+            el.id = "marker";
+            el.style.backgroundImage = `url(${marker.url})`;
+            el.style.backgroundSize = "100% 100%";
+            el.style.width = `${marker.size[0]}px`;
+            el.style.height = `${marker.size[1]}px`;
+            // el.addEventListener('click', (e) => {
+            //     e.stopPropagation();
+            //     console.log(e.target);
+            // }, false);
+            let _marker = new mapboxgl.Marker({
+                    element: el, //HTML元素
+                    anchor: "bottom", //设置图标点相对于经纬度的位置 (bottom 代表图标点的底部与所设置的经纬度相接) 默认center
+                    draggable: false //是否可拖拽
+                })
+                .setLngLat([marker.lontitude, marker.latitude])
+                .setPopup(createPopup())
+                .addTo(map)
+                .on("dragend", (e) => {
+                    console.log(e, _marker.getLngLat());
+                });
+            return _marker;
+        });
+    }
+    // 聚合点位  不能直接添加svg 需要转换
+    function addClusterMarker() {
+        map.addSource("clustermarker", {
+            type: "geojson",
+            data: {
+                type: "FeatureCollection",
+                features: [{
+                        type: "Feature",
+                        properties: {},
+                        geometry: {
+                            type: "Point",
+                            coordinates: [108.96269898161594, 34.268529071739074]
+                        }
+                    },
+                    {
+                        type: "Feature",
+                        properties: {},
+                        geometry: {
+                            type: "Point",
+                            coordinates: [108.86244845161594, 34.363429024739074]
+                        }
+                    }
+                ]
+            },
+            cluster: true,
+            clusterMaxZoom: 14, // Max zoom to cluster points on
+            clusterRadius: 50 // Radius of each cluster when clustering points (defaults to 50)
+        });
+        // 聚合圈
+        map.addLayer({
+            id: "clusters",
+            type: "circle",
+            source: "clustermarker",
+            filter: ["has", "point_count"],
+            paint: {
+                // with three steps to implement three types of circles:
+                //   * Blue, 20px circles when point count is less than 100
+                //   * Yellow, 30px circles when point count is between 100 and 750
+                //   * Pink, 40px circles when point count is greater than or equal to 750
+                "circle-color": ["step", ["get", "point_count"], "#51bbd6", 100, "#f1f075", 750, "#f28cb1"],
+                "circle-radius": ["step", ["get", "point_count"], 20, 100, 30, 750, 40]
+            }
+        });
+        // 聚合的点数量
+        map.addLayer({
+            id: "cluster-count",
+            type: "symbol",
+            source: "clustermarker",
+            filter: ["has", "point_count"],
+            layout: {
+                // 'text-field': '{point_count_abbreviated}',
+                "text-font": ["DIN Offc Pro Medium", "Arial Unicode MS Bold"],
+                "text-size": 18
+            }
+        });
+        // 自定义图片的聚合
+        // map.loadImage("http://localhost:8089/mappin.png", function (error, image) {
+        //     map.addImage('customer-marker', image);
+        //     map.addLayer({
+        //         id: 'unclustered-point',
+        //         type: 'symbol',
+        //         source: 'clustermarker',
+        //         filter: ['!', ['has', 'point_count']],
+        //         layout: {
+        //             'icon-image': 'customer-marker'
+        //         }
+        //     });
+        // })
+        // 聚合点
+        map.addLayer({
+            id: "unclustered-point",
+            type: "circle",
+            source: "clustermarker",
+            filter: ["!", ["has", "point_count"]],
+            paint: {
+                "circle-color": "#11b4da",
+                "circle-radius": 10,
+                "circle-stroke-width": 1,
+                "circle-stroke-color": "#fff"
+            }
+        });
+
+        // inspect a cluster on click
+        map.on("click", "clusters", function (e) {
+            var features = map.queryRenderedFeatures(e.point, {
+                layers: ["clusters"]
+            });
+            var clusterId = features[0].properties.cluster_id;
+            map.getSource("clustermarker").getClusterExpansionZoom(clusterId, function (err, zoom) {
+                if (err) return;
+                map.easeTo({
+                    center: features[0].geometry.coordinates,
+                    zoom: zoom
+                });
+            });
+        });
+
+        //聚合点添加事件
+        map.on("click", "unclustered-point", function (e) {
+            var coordinates = e.features[0].geometry.coordinates.slice();
+            // Ensure that if the map is zoomed out such that
+            // multiple copies of the feature are visible, the
+            // popup appears over the copy being pointed to.
+            while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+                coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+            }
+            new mapboxgl.Popup().setLngLat(coordinates).setHTML("这是聚合点位").addTo(map);
+        });
+
+        map.on("mouseenter", "clusters", function () {
+            map.getCanvas().style.cursor = "pointer";
+        });
+        map.on("mouseleave", "clusters", function () {
+            map.getCanvas().style.cursor = "";
+        });
+    }
+
+    // 创建infowindow
+    function createPopup() {
+        var popup = new mapboxgl.Popup({
+            closeButton: true, //显示关闭按钮
+            closeOnClick: true, //点击地图时popup关闭
+            closeOnMove: false, //移动地图时popup关闭
+            // anchor: 'bottom', //底部小三角的位置
+            offset: [0, -25], //像素偏移
+            className: "popup-window", //自定义类名
+            maxWidth: "300px" //最大宽度
+        }).setHTML("<h1>Hello MapBox!</h1>");
+        // .setText('Construction on the Washington Monument began in 1848.');
+        // .setDOMContent('htmlNode');
+        // .setLngLat([-122.420679, 37.772537] || {lon: -122.420679, lat: 37.772537});
+        // .addToMap(map)
+        // .remove()
+        return popup;
+    }
+
+    // 全屏控件
+    map.addControl(new mapboxgl.FullscreenControl());
+    // 比例尺控件
+    map.addControl(
+        new mapboxgl.ScaleControl({
+            maxWidth: 80 //控件的最大长度
+            // unit: 'imperial' 'metric' //单位 默认米制单位
+        })
+    );
+    // 导航控件
+    map.addControl(new mapboxgl.NavigationControl());
+    // 加载地图厂商提供的含建筑高度的数据(通过工具转换的geojson数据)
+    function addGeojsonFromOther() {
+        map.addSource("main", {
+            type: "geojson",
+            data: "http://localhost:8089/BLDPG.json"
+        });
+        map.addLayer({
+            id: "park-boundary",
+            type: "fill",
+            source: "main",
+            paint: {
+                "fill-color": "#888888",
+                "fill-opacity": 0.4
+            },
+            filter: ["==", "$type", "Polygon"]
+        });
+        map.addLayer({
+            id: "park-volcanoes",
+            type: "circle",
+            source: "main",
+            paint: {
+                "circle-radius": 6,
+                "circle-color": "#B42222"
+            },
+            filter: ["==", "$type", "Point"]
+        });
+        map.addLayer({
+            id: "entity_layer",
+            type: "fill",
+            source: "main",
+            type: "fill-extrusion",
+            layout: {},
+            minzoom: 14,
+            paint: {
+                "fill-extrusion-color": "#fff",
+                "fill-extrusion-height": ["interpolate", ["linear"],
+                    ["zoom"], 14, 0, 14.05, ["get", "Height"]
+                ],
+                "fill-extrusion-base": ["interpolate", ["linear"],
+                    ["zoom"], 14, 0, 14.05, ["get", "base_height"]
+                ],
+                "fill-extrusion-opacity": 1
+            },
+            filter: ["==", "$type", "Polygon"]
+        });
+    }
+    // 结合three.js加载3D模型
+    function getCustomLayerModel() {
+        // parameters to ensure the model is georeferenced correctly on the map
+        var modelOrigin = [108.96269898161594, 34.268529071739074];
+        var modelAltitude = 0;
+        // 旋转角度
+        var modelRotate = [Math.PI / 2, 0, 0];
+        var modelScale = 5.41843220338983e-6;
+        // transformation parameters to position, rotate and scale the 3D model onto the map
+        var modelTransform = {
+            translateX: mapboxgl.MercatorCoordinate.fromLngLat(modelOrigin, modelAltitude).x,
+            translateY: mapboxgl.MercatorCoordinate.fromLngLat(modelOrigin, modelAltitude).y,
+            translateZ: mapboxgl.MercatorCoordinate.fromLngLat(modelOrigin, modelAltitude).z,
+            rotateX: modelRotate[0],
+            rotateY: modelRotate[1],
+            rotateZ: modelRotate[2],
+            scale: modelScale
+        };
+
+        var THREE = window.THREE;
+
+        // configuration of the custom layer for a 3D model per the CustomLayerInterface
+        var customLayer = {
+            id: "3d-model",
+            type: "custom",
+            renderingMode: "3d",
+            onAdd: function (map, gl) {
+                this.camera = new THREE.Camera();
+                this.scene = new THREE.Scene();
+
+                // create two three.js lights to illuminate the model
+                var directionalLight = new THREE.DirectionalLight(0xffffff);
+                directionalLight.position.set(0, -70, 100).normalize();
+                this.scene.add(directionalLight);
+
+                var directionalLight2 = new THREE.DirectionalLight(0xffffff);
+                directionalLight2.position.set(0, 70, 100).normalize();
+                this.scene.add(directionalLight2);
+
+                // use the three.js GLTF loader to add the 3D model to the three.js scene
+                var loader = new THREE.GLTFLoader();
+                loader.load(
+                    "./model/model.gltf",
+                    function (gltf) {
+                        this.scene.add(gltf.scene);
+                    }.bind(this)
+                );
+                this.map = map;
+
+                // use the Mapbox GL JS map canvas for three.js
+                this.renderer = new THREE.WebGLRenderer({
+                    canvas: map.getCanvas(),
+                    context: gl
+                });
+
+                this.renderer.autoClear = false;
+            },
+            render: function (gl, matrix) {
+                var rotationX = new THREE.Matrix4().makeRotationAxis(new THREE.Vector3(1, 0, 0), modelTransform
+                    .rotateX);
+                var rotationY = new THREE.Matrix4().makeRotationAxis(new THREE.Vector3(0, 1, 0), modelTransform
+                    .rotateY);
+                var rotationZ = new THREE.Matrix4().makeRotationAxis(new THREE.Vector3(0, 0, 1), modelTransform
+                    .rotateZ);
+
+                var m = new THREE.Matrix4().fromArray(matrix);
+                var l = new THREE.Matrix4().makeTranslation(modelTransform.translateX, modelTransform
+                        .translateY, modelTransform.translateZ).scale(new THREE.Vector3(modelTransform.scale, -
+                        modelTransform.scale, modelTransform.scale)).multiply(rotationX).multiply(rotationY)
+                    .multiply(rotationZ);
+
+                this.camera.projectionMatrix.elements = matrix;
+                this.camera.projectionMatrix = m.multiply(l);
+                this.renderer.state.reset();
+                this.renderer.render(this.scene, this.camera);
+                this.map.triggerRepaint();
+            }
+        };
+        return customLayer;
+    }
+
+    function getMockData() {
+        let data = [{
+                id: "10004",
+                lontitude: 108.96269898161594,
+                latitude: 34.268529071739074,
+                url: "./centerDevice.svg",
+                size: [20, (20 * 48) / 35]
+            },
+            {
+                id: "10005",
+                lontitude: 108.86244845161594,
+                latitude: 34.363429024739074,
+                url: "./centerDevice.svg",
+                size: [20, (20 * 48) / 35]
+            }
+        ];
+        return data;
+    }
+</script>
+
+</html>

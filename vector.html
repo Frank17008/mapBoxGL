@@ -46,6 +46,152 @@
 </body>
 
 <script>
+	const style = {
+		version: 8, //必须为8
+		name: "zvmap",
+		sources: {
+			composite: {
+				tiles: ["http://localhost:8089/pbf/{z}/{x}/{y}.pbf"],
+				type: "vector"
+			}
+		},
+		sprite: "http://localhost:8089/sprite/sprite",
+		glyphs: "http://localhost:8089/font/{fontstack}/{range}.pbf",
+		layers: [{
+				id: "background",
+				//地图背景
+				type: "background",
+				layout: {},
+				paint: {
+					"background-color": "#666"
+				},
+				interactive: true
+			},
+			{
+				id: "water",
+				type: "fill",
+				source: "composite",
+				"source-layer": "geojson",
+				layout: {},
+				filter: ["has", "XSDJ"],
+				// filter: ["match", ["get", "Name"], "玉门河", "虎峪河", "true"],
+				paint: {
+					"fill-color": "#7cd0ee"
+				}
+			},
+			{
+				id: "land-structure-line",
+				type: "line",
+				source: "composite",
+				"source-layer": "geojson",
+				minzoom: 13,
+				filter: ["all", ["==", ["geometry-type"], "LineString"]],
+				paint: {
+					"line-width": ["interpolate", ["exponential", 1.99],
+						["zoom"], 14, 0.75, 20, 40
+					],
+					"line-color": "#fff"
+				}
+			},
+			{
+				id: "road-label-simple",
+				type: "symbol",
+				source: "composite",
+				"source-layer": "geojson",
+				minzoom: 12,
+				filter: ["has", "PathName"],
+				layout: {
+					"text-size": 12,
+					"text-max-angle": 30,
+					"text-font": ["DIN Pro Italic", "Arial Unicode MS Regular"],
+					"text-field": ["get", "PathName"],
+					"text-letter-spacing": 0.01
+				},
+				paint: {
+					"text-color": "#539bdf",
+					"text-halo-color": "hsl(38, 55%, 100%)",
+					"text-halo-width": 1
+				}
+			},
+			{
+				id: "area",
+				source: "composite",
+				"source-layer": "geojson",
+				type: "fill",
+				layout: {},
+				filter: ["==", ["get", "TYPE"], "小区"],
+				paint: {
+					"fill-color": "#ece1cb",
+				},
+			},
+			{
+				id: "3D-building",
+				source: "composite",
+				"source-layer": "geojson",
+				type: "fill-extrusion",
+				layout: {},
+				// minzoom: 9,
+				filter: ["has", "FLDM"],
+				paint: {
+					"fill-extrusion-color": "#1cbab2",
+					// "fill-extrusion-height": ["to-number", ["get", "Height"]],
+					"fill-extrusion-height": 5,
+					// "fill-extrusion-height": ["interpolate", ["linear"],
+					// 	["zoom"], 12, 0, 18.05, ["get", "Height"]
+					// ],
+					// "fill-extrusion-base": ["interpolate", ["linear"],
+					// 	["zoom"], 14, 0, 14.05, ["get", "base_height"]
+					// ],
+					"fill-extrusion-opacity": 1
+				},
+				// filter: ["==", "$type", "Polygon"]
+			},
+			{
+				id: "label",
+				type: "symbol",
+				source: "composite",
+				"source-layer": "geojson",
+				filter: ["==", ["get", "TYPE"], "地名地址信息;门牌信息;楼栋号"],
+				layout: {
+					// "icon-image": "toilet-11", //图标sprite.json中的key
+					"text-line-height": 1.1,
+					"text-size": 12,
+					"text-font": ["DIN Pro Regular"],
+					"text-offset": [0, 0.75],
+					"text-anchor": "top",
+					"text-field": ["get", "NAME"],
+					"text-letter-spacing": 0.01,
+					"text-max-width": 9
+				},
+				paint: {
+					"text-color": "hsl(225, 4%, 40%)",
+					"text-halo-color": "hsl(225, 68%, 100%)",
+					"text-halo-width": 1
+				}
+			},
+			{
+				id: "w-label",
+				type: "symbol",
+				source: "composite",
+				"source-layer": "geojson",
+				filter: ["==", ["get", "ZipCode"], 0],
+				layout: {
+					"text-line-height": 1.1,
+					"text-size": 12,
+					"text-font": ["DIN Pro Regular"],
+					"text-offset": [0, 0.75],
+					"text-anchor": "top",
+					"text-field": ["get", "Name"],
+					"text-letter-spacing": 0.01,
+				},
+				paint: {
+					"text-color": "hsl(225, 4%, 40%)",
+					"text-halo-color": "hsl(225, 68%, 100%)",
+					"text-halo-width": 1
+				}
+			}
+		]
+	}
 	var colors = [
 		'#ffffcc',
 		'#a1dab4',
@@ -63,62 +209,19 @@
 		"pk.eyJ1IjoiZnJhbmtkb25nMDA3IiwiYSI6ImNrOXY0ZjdoYjA4MnYzbHBnYzA2aTJkeXoifQ.nB4LKjrVCergxIDQOxVGDg";
 	var map = new mapboxgl.Map({
 		container: "map",
-		style: {
-			version: 8, //必须为8
-			name: "zvmap",
-			sources: {
-				composite: {
-					tiles: ["http://localhost:8089/pbf/{z}/{x}/{y}.pbf"],
-					type: "vector"
-				}
-			},
-			layers: [{
-				id: "background",
-				//地图背景
-				type: "background",
-				layout: {},
-				paint: {
-					"background-color": "#666"
-				},
-				interactive: true
-			}, {
-				id: "3D-building",
-				type: "fill",
-				source: "composite",
-				"source-layer": "BLDPG",
-				type: "fill-extrusion",
-				layout: {},
-				minzoom: 9,
-				paint: {
-					"fill-extrusion-color": "#3fffff",
-					"fill-extrusion-height": ["to-number", ["get", "Height"]],
-					// "fill-extrusion-height": ["interpolate", ["linear"],
-					// 	["zoom"], 12, 0, 18.05, ["get", "Height"]
-					// ],
-					// "fill-extrusion-height": ["interpolate", ["linear"],
-					// 	["zoom"], 14, 0, 14.05, ["get", "Height"]
-					// ],
-					// "fill-extrusion-base": ["interpolate", ["linear"],
-					// 	["zoom"], 14, 0, 14.05, ["get", "base_height"]
-					// ],
-					// "fill-extrusion-opacity": 1
-				},
-				filter: ["==", "$type", "Polygon"]
-			}]
-		},
+		style: style,
 		// 边界
-		maxBounds: [110.970513, 35.049351, 110.997706, 35.063066],
-		center: [110.981827, 35.053046],
+		// maxBounds: [110.970513, 35.049351, 110.997706, 35.063066],
+		maxBounds: [112.482377, 37.847588, 112.511254, 37.867658],
+		// center: [110.981827, 35.053046],
+		center: [112.502060, 37.866723],
 		pitch: 40, //倾斜角
 		bearing: 0, //方位角
-		zoom: 12
+		zoom: 14
 	});
 	map.on("load", () => {
-		// addMarkers(getMockData());
-		// addClusterMarker()
-		// addGeojsonByOwn();
-		changeColor();
-		rotateCamera(0);
+		// changeColor();
+		// rotateCamera(0);
 	});
 
 	// 更改颜色
@@ -130,13 +233,13 @@
 			// button.addEventListener('click', function () {
 			// 	map.setPaintProperty('3D-building', 'fill-extrusion-color', color);
 			// });
-			swatches.appendChild(button);
+			// swatches.appendChild(button);
 		});
 		var i = -1;
 		setInterval(() => {
 			i++;
 			i = i >= 10 ? 0 : i;
-			// 更改渲染颜色
+			// 更改渲染颜色 layer-id propertyName propertyValue
 			map.setPaintProperty('3D-building', 'fill-extrusion-color', colors[i]);
 		}, 1000);
 	}

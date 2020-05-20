@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+	<title>mapBox Demo</title>
+	<script src="mapbox/mapbox-gl.js"></script>
+	<link href="mapbox/mapbox-gl.css" rel="stylesheet" />
+	<style type="text/css">
+		body {
+			margin: 0;
+			padding: 0;
+		}
+
+		#map {
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+		}
+	</style>
+</head>
+
+<body>
+	<div id="map"></div>
+</body>
+
+<script>
+	mapboxgl.accessToken =
+		"pk.eyJ1IjoiZnJhbmtkb25nMDA3IiwiYSI6ImNrOXY0ZjdoYjA4MnYzbHBnYzA2aTJkeXoifQ.nB4LKjrVCergxIDQOxVGDg";
+	var map = new mapboxgl.Map({
+		container: "map",
+		style: "mapbox://styles/frankdong007/ckacblz0g563h1ioazkgogjv9",
+		// 边界
+		// maxBounds: [112.498865, 37.857422, 112.511251, 37.867648],
+		center: [112.495260, 37.856723],
+		// pitch: 50,
+		bearing: 0, //方位角
+		zoom: 16
+	});
+	map.on("load", () => {
+		// changeColor();
+		// rotateCamera(0);
+	});
+	// 全屏控件
+	map.addControl(new mapboxgl.FullscreenControl());
+	// 比例尺控件
+	map.addControl(
+		new mapboxgl.ScaleControl({
+			maxWidth: 80 //控件的最大长度
+			// unit: 'imperial' 'metric' //单位 默认米制单位
+		})
+	);
+	// 导航控件
+	map.addControl(new mapboxgl.NavigationControl());
+
+	function getMockData() {
+		let data = [{
+				id: "10004",
+				lontitude: 108.96269898161594,
+				latitude: 34.268529071739074,
+				url: "./centerDevice.svg",
+				size: [20, (20 * 48) / 35]
+			},
+			{
+				id: "10005",
+				lontitude: 108.86244845161594,
+				latitude: 34.363429024739074,
+				url: "./centerDevice.svg",
+				size: [20, (20 * 48) / 35]
+			}
+		];
+		return data;
+	}
+</script>
+
+</html>

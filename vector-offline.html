@@ -86,20 +86,61 @@
 		"bearing": 0,
 		"pitch": 54.50000000000001,
 		"sources": {
-			"composite": {
+			"ROAD": {
+				"tiles": [
+					"http://localhost:8089/pbf/ROAD/{z}/{x}/{y}.pbf",
+
+				],
+				"type": "vector"
+			},
+			"BLDPG": {
+				"tiles": [
+					"http://localhost:8089/pbf/BLDPG/{z}/{x}/{y}.pbf",
+				],
+				"type": "vector"
+			},
+			"BLDNUMPT": {
 				"tiles": [
 					"http://localhost:8089/pbf/BLDNUMPT/{z}/{x}/{y}.pbf",
-					"http://localhost:8089/pbf/BLDPG/{z}/{x}/{y}.pbf",
+				],
+				"type": "vector"
+			},
+			"FUNCPG": {
+				"tiles": [
 					"http://localhost:8089/pbf/FUNCPG/{z}/{x}/{y}.pbf",
+				],
+				"type": "vector"
+			},
+			"HYDPG": {
+				"tiles": [
 					"http://localhost:8089/pbf/HYDPG/{z}/{x}/{y}.pbf",
+				],
+				"type": "vector"
+			},
+			"POI": {
+				"tiles": [
 					"http://localhost:8089/pbf/POI/{z}/{x}/{y}.pbf",
-					"http://localhost:8089/pbf/ROAD/{z}/{x}/{y}.pbf",
+				],
+				"type": "vector"
+			},
+			"TOWNPL": {
+				"tiles": [
 					"http://localhost:8089/pbf/TOWNPL/{z}/{x}/{y}.pbf",
+				],
+				"type": "vector"
+			},
+			"VEGPG": {
+				"tiles": [
 					"http://localhost:8089/pbf/VEGPG/{z}/{x}/{y}.pbf",
+				],
+				"type": "vector"
+			},
+			"FUNCPT": {
+				"tiles": [
 					"http://localhost:8089/pbf/FUNCPT/{z}/{x}/{y}.pbf",
 				],
 				"type": "vector"
-			}
+			},
 		},
 		"sprite": "mapbox://sprites/frankdong007/ckacblz0g563h1ioazkgogjv9/1t1zvwn5br6f76etgh9qcq0d3",
 		"glyphs": "mapbox://fonts/frankdong007/{fontstack}/{range}.pbf",
@@ -114,7 +155,7 @@
 			{
 				"id": "water-way",
 				"type": "fill",
-				"source": "composite",
+				"source": "HYDPG",
 				"source-layer": "HYDPG",
 				"layout": {},
 				"paint": {
@@ -127,7 +168,7 @@
 				"metadata": {
 					"mapbox:group": "63308e9c73f2eca901a405a4f4cc9779"
 				},
-				"source": "composite",
+				"source": "VEGPG",
 				"source-layer": "VEGPG",
 				"layout": {},
 				"paint": {
@@ -140,7 +181,7 @@
 				"metadata": {
 					"mapbox:group": "63308e9c73f2eca901a405a4f4cc9779"
 				},
-				"source": "composite",
+				"source": "VEGPG",
 				"source-layer": "VEGPG",
 				"layout": {
 					"text-field": ["to-string", ["get", "Name"]],
@@ -153,7 +194,7 @@
 			{
 				"id": "school-base",
 				"type": "fill",
-				"source": "composite",
+				"source": "FUNCPG",
 				"source-layer": "FUNCPG",
 				"filter": ["match", ["get", "TYPE"],
 					["学校"], true, false
@@ -176,7 +217,7 @@
 			{
 				"id": "hospital-base",
 				"type": "fill",
-				"source": "composite",
+				"source": "FUNCPG",
 				"source-layer": "FUNCPG",
 				"minzoom": 12,
 				"filter": ["match", ["get", "TYPE"],
@@ -190,7 +231,7 @@
 			{
 				"id": "road-2",
 				"type": "line",
-				"source": "composite",
+				"source": "ROAD",
 				"source-layer": "ROAD",
 				"minzoom": 12,
 				"filter": [
@@ -215,7 +256,7 @@
 			{
 				"id": "road",
 				"type": "line",
-				"source": "composite",
+				"source": "ROAD",
 				"source-layer": "ROAD",
 				"filter": [
 					"all",
@@ -245,7 +286,7 @@
 			{
 				"id": "building",
 				"type": "fill-extrusion",
-				"source": "composite",
+				"source": "BLDPG",
 				"source-layer": "BLDPG",
 				"layout": {},
 				"paint": {
@@ -259,7 +300,7 @@
 				"metadata": {
 					"mapbox:group": "75e2502c3471b5c8485f03f715b5bc16"
 				},
-				"source": "composite",
+				"source": "POI",
 				"source-layer": "POI",
 				"minzoom": 18.1,
 				"layout": {
@@ -276,7 +317,7 @@
 				"metadata": {
 					"mapbox:group": "75e2502c3471b5c8485f03f715b5bc16"
 				},
-				"source": "composite",
+				"source": "BLDNUMPT",
 				"source-layer": "BLDNUMPT",
 				"minzoom": 10.8,
 				"layout": {
@@ -296,7 +337,7 @@
 				"metadata": {
 					"mapbox:group": "75e2502c3471b5c8485f03f715b5bc16"
 				},
-				"source": "composite",
+				"source": "FUNCPT",
 				"source-layer": "FUNCPT",
 				"minzoom": 13.9,
 				"filter": [
@@ -328,7 +369,7 @@
 				"metadata": {
 					"mapbox:group": "75e2502c3471b5c8485f03f715b5bc16"
 				},
-				"source": "composite",
+				"source": "FUNCPT",
 				"source-layer": "FUNCPT",
 				"filter": [
 					"all",
@@ -358,7 +399,7 @@
 				"metadata": {
 					"mapbox:group": "75e2502c3471b5c8485f03f715b5bc16"
 				},
-				"source": "composite",
+				"source": "FUNCPT",
 				"source-layer": "FUNCPT",
 				"minzoom": 12.6,
 				"filter": [

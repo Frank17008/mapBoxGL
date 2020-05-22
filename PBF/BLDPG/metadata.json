@@ -1,0 +1,14 @@
+{
+"name": "D:/mapBoxGL/PBF/BLDPG",
+"description": "D:/mapBoxGL/PBF/BLDPG",
+"version": "2",
+"minzoom": "0",
+"maxzoom": "19",
+"center": "112.489357,37.862115,19",
+"bounds": "112.482391,37.847588,112.511254,37.867652",
+"type": "overlay",
+"format": "pbf",
+"generator": "tippecanoe v1.35.0",
+"generator_options": "tippecanoe -e D:/mapBoxGL/PBF/BLDPG -pC -Z 0 -z 19 -f D:/geojson/BLDPG.json",
+"json": "{\"vector_layers\": [ { \"id\": \"BLDPG\", \"description\": \"\", \"minzoom\": 0, \"maxzoom\": 19, \"fields\": {\"FLDM\": \"String\", \"GBDM\": \"String\", \"GXSJ\": \"String\", \"LX\": \"String\", \"MC\": \"String\", \"·¶Î§¿ò\": \"String\"} } ],\"tilestats\": {\"layerCount\": 1,\"layers\": [{\"layer\": \"BLDPG\",\"count\": 3494,\"geometry\": \"Polygon\",\"attributeCount\": 6,\"attributes\": [{\"attribute\": \"FLDM\",\"count\": 1,\"type\": \"string\",\"values\": [\"\"]},{\"attribute\": \"GBDM\",\"count\": 1,\"type\": \"string\",\"values\": [\"\"]},{\"attribute\": \"GXSJ\",\"count\": 1,\"type\": \"string\",\"values\": [\"1899-12-30T00:00:00.000Z\"]},{\"attribute\": \"LX\",\"count\": 1,\"type\": \"string\",\"values\": [\"\"]},{\"attribute\": \"MC\",\"count\": 1,\"type\": \"string\",\"values\": [\"\"]},{\"attribute\": \"·¶Î§¿ò\",\"count\": 1,\"type\": \"string\",\"values\": [\"\"]}]}]}}"
+}

@@ -1,0 +1,14 @@
+{
+"name": "D:/mapBoxGL/PBF/TOWNPL",
+"description": "D:/mapBoxGL/PBF/TOWNPL",
+"version": "2",
+"minzoom": "0",
+"maxzoom": "15",
+"center": "112.505493,37.861844,15",
+"bounds": "112.482455,37.847591,112.511252,37.867657",
+"type": "overlay",
+"format": "pbf",
+"generator": "tippecanoe v1.35.0",
+"generator_options": "tippecanoe -e D:/mapBoxGL/PBF/TOWNPL -pC -Z 0 -z 15 -f D:/geojson/TOWNPL.json",
+"json": "{\"vector_layers\": [ { \"id\": \"TOWNPL\", \"description\": \"\", \"minzoom\": 0, \"maxzoom\": 15, \"fields\": {\"FID_Ì«Ô­ÊÐ\": \"Number\", \"Id\": \"Number\", \"Join_Count\": \"Number\", \"ORIG_FID\": \"Number\", \"TARGET_FID\": \"Number\", \"desc_\": \"String\", \"name\": \"String\"} } ],\"tilestats\": {\"layerCount\": 1,\"layers\": [{\"layer\": \"TOWNPL\",\"count\": 12,\"geometry\": \"LineString\",\"attributeCount\": 7,\"attributes\": [{\"attribute\": \"FID_Ì«Ô­ÊÐ\",\"count\": 5,\"type\": \"number\",\"values\": [30,35,38,42,46],\"min\": 30,\"max\": 46},{\"attribute\": \"Id\",\"count\": 1,\"type\": \"number\",\"values\": [0],\"min\": 0,\"max\": 0},{\"attribute\": \"Join_Count\",\"count\": 1,\"type\": \"number\",\"values\": [1],\"min\": 1,\"max\": 1},{\"attribute\": \"ORIG_FID\",\"count\": 5,\"type\": \"number\",\"values\": [33,36,38,42,47],\"min\": 33,\"max\": 47},{\"attribute\": \"TARGET_FID\",\"count\": 5,\"type\": \"number\",\"values\": [31,36,39,43,47],\"min\": 31,\"max\": 47},{\"attribute\": \"desc_\",\"count\": 1,\"type\": \"string\",\"values\": [\"\"]},{\"attribute\": \"name\",\"count\": 5,\"type\": \"string\",\"values\": [\"下元街道\",\"兴华街道\",\"千峰街道\",\"和平街道\",\"小井峪街道\"]}]}]}}"
+}

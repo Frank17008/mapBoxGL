@@ -1,0 +1,14 @@
+{
+"name": "D:/mapBoxGL/PBF/VEGPG",
+"description": "D:/mapBoxGL/PBF/VEGPG",
+"version": "2",
+"minzoom": "0",
+"maxzoom": "13",
+"center": "112.511251,37.867648,13",
+"bounds": "112.498865,37.857422,112.511251,37.867648",
+"type": "overlay",
+"format": "pbf",
+"generator": "tippecanoe v1.35.0",
+"generator_options": "tippecanoe -e D:/mapBoxGL/PBF/VEGPG -pC -Z 0 -z 13 -f D:/geojson/VEGPG.json",
+"json": "{\"vector_layers\": [ { \"id\": \"VEGPG\", \"description\": \"\", \"minzoom\": 0, \"maxzoom\": 13, \"fields\": {\"Name\": \"String\", \"XSDJ\": \"String\"} } ],\"tilestats\": {\"layerCount\": 1,\"layers\": [{\"layer\": \"VEGPG\",\"count\": 2,\"geometry\": \"Polygon\",\"attributeCount\": 2,\"attributes\": [{\"attribute\": \"Name\",\"count\": 2,\"type\": \"string\",\"values\": [\"三角地游园\",\"玉门河公园\"]},{\"attribute\": \"XSDJ\",\"count\": 1,\"type\": \"string\",\"values\": [\"\"]}]}]}}"
+}

@@ -2107,8 +2107,21 @@
             minzoom: 14,
             paint: {
                 "fill-extrusion-color": "#3fffff",
-                "fill-extrusion-height": ["interpolate", ["linear"],
-                    ["zoom"], 14, 0, 14.05, ["get", "Height"]
+                "fill-extrusion-height": [
+                    // interpolate 插值表达式的名称
+                    "interpolate",
+                    //在两个数值之间进行线性插值
+                    ["linear"],
+                    //对zoom级别进行插值
+                    ["zoom"],
+                    // zoom 0~14之间
+                    14,
+                    // zoom 0~14之间的参考值
+                    0,
+                    // zoom 14~14.05之间
+                    14.05,
+                    // zoom 14~14.05之间的参考值  取对应图层中Height的值
+                    ["get", "Height"]
                 ],
                 "fill-extrusion-base": ["interpolate", ["linear"],
                     ["zoom"], 14, 0, 14.05, ["get", "base_height"]

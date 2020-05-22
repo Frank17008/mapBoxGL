@@ -1,0 +1,33 @@
+{
+    "version": 8,
+    "name": "zvmap",
+    "sources": {
+        "composite": {
+            "tiles": ["http://localhost:8089/pbf/{z}/{x}/{y}.pbf"],
+            "type": "vector"
+        }
+    },
+    "sprite": "http://localhost:8089/sprite/sprite",
+    "glyphs": "http://localhost:8089/font/{fontstack}/{range}.pbf",
+    "layers": [{
+        "id": "background",
+        "type": "background",
+        "layout": {},
+        "paint": {
+            "background-color": "#666"
+        },
+        "interactive": true
+    }, {
+        "id": "3D-building",
+        "source": "composite",
+        "source-layer": "BLDPG",
+        "type": "fill-extrusion",
+        "layout": {},
+        "minzoom": 9,
+        "paint": {
+            "fill-extrusion-color": "#3fffff",
+            "fill-extrusion-height": ["to-number", ["get", "Height"]]
+        },
+        "filter": ["==", "$type", "Polygon"]
+    }]
+}

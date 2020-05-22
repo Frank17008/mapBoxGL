@@ -58,14 +58,12 @@
 		sprite: "http://localhost:8089/sprite/sprite",
 		glyphs: "http://localhost:8089/font/{fontstack}/{range}.pbf",
 		layers: [{
-				id: "background",
-				//地图背景
-				type: "background",
-				layout: {},
-				paint: {
-					"background-color": "#666"
-				},
-				interactive: true
+				"id": "background",
+				"type": "background",
+				"layout": {},
+				"paint": {
+					"background-color": "hsl(0, 7%, 94%)"
+				}
 			},
 			{
 				id: "water",
@@ -73,44 +71,94 @@
 				source: "composite",
 				"source-layer": "geojson",
 				layout: {},
-				filter: ["has", "XSDJ"],
-				// filter: ["match", ["get", "Name"], "玉门河", "虎峪河", "true"],
+				filter: ["match", ["get", "Name"],
+					["玉门河", "虎峪河"], true, false
+				],
 				paint: {
-					"fill-color": "#7cd0ee"
+					"fill-color": "rgb(178, 206, 254)"
 				}
 			},
 			{
-				id: "land-structure-line",
-				type: "line",
-				source: "composite",
+				"id": "road-2",
+				"type": "line",
+				"source": "composite",
 				"source-layer": "geojson",
-				minzoom: 13,
-				filter: ["all", ["==", ["geometry-type"], "LineString"]],
-				paint: {
-					"line-width": ["interpolate", ["exponential", 1.99],
-						["zoom"], 14, 0.75, 20, 40
+				"minzoom": 12,
+				"filter": [
+					"all",
+					[
+						"match",
+						["geometry-type"],
+						["Polygon", "LineString"],
+						true,
+						false
 					],
-					"line-color": "#fff"
+					["match", ["get", "LaneNum"],
+						[3, 2], false, true
+					]
+				],
+				"layout": {},
+				"paint": {
+					"line-color": "hsl(44, 8%, 100%)",
+					"line-width": 5
 				}
 			},
 			{
-				id: "road-label-simple",
-				type: "symbol",
-				source: "composite",
+				"id": "road",
+				"type": "line",
+				"source": "composite",
 				"source-layer": "geojson",
-				minzoom: 12,
-				filter: ["has", "PathName"],
-				layout: {
-					"text-size": 12,
-					"text-max-angle": 30,
-					"text-font": ["DIN Pro Italic", "Arial Unicode MS Regular"],
-					"text-field": ["get", "PathName"],
-					"text-letter-spacing": 0.01
+				"filter": [
+					"all",
+					["match", ["geometry-type"],
+						["LineString"], true, false
+					],
+					["match", ["get", "LaneNum"],
+						[3, 2], true, false
+					]
+				],
+				"layout": {},
+				"paint": {
+					"line-color": "#fed052",
+					"line-width": [
+						"interpolate",
+						["linear"],
+						["zoom"],
+						2,
+						5,
+						12,
+						10,
+						22,
+						11
+					]
+				}
+			},
+			{
+				"id": "poi-label",
+				"type": "symbol",
+				"source": "composite",
+				"source-layer": "POI",
+				"minzoom": 18.1,
+				"layout": {
+					"text-field": ["to-string", ["get", "Name"]],
+					"text-size": 10
 				},
-				paint: {
-					"text-color": "#539bdf",
-					"text-halo-color": "hsl(38, 55%, 100%)",
-					"text-halo-width": 1
+				"paint": {
+					"text-color": "hsl(72, 6%, 29%)"
+				}
+			},
+			{
+				"id": "hospital-base",
+				"type": "fill",
+				"source": "composite",
+				"source-layer": "geojson",
+				"minzoom": 12,
+				"filter": ["match", ["get", "TYPE"],
+					["医院", "党政机关"], true, false
+				],
+				"layout": {},
+				"paint": {
+					"fill-color": "hsl(0, 68%, 91%)"
 				}
 			},
 			{
@@ -119,7 +167,9 @@
 				"source-layer": "geojson",
 				type: "fill",
 				layout: {},
-				filter: ["==", ["get", "TYPE"], "小区"],
+				filter: ["match", ["get", "TYPE"],
+					["小区"], true, false
+				],
 				paint: {
 					"fill-color": "#ece1cb",
 				},
@@ -132,19 +182,10 @@
 				layout: {},
 				// minzoom: 9,
 				filter: ["has", "FLDM"],
-				paint: {
-					"fill-extrusion-color": "#1cbab2",
-					// "fill-extrusion-height": ["to-number", ["get", "Height"]],
-					"fill-extrusion-height": 5,
-					// "fill-extrusion-height": ["interpolate", ["linear"],
-					// 	["zoom"], 12, 0, 18.05, ["get", "Height"]
-					// ],
-					// "fill-extrusion-base": ["interpolate", ["linear"],
-					// 	["zoom"], 14, 0, 14.05, ["get", "base_height"]
-					// ],
-					"fill-extrusion-opacity": 1
-				},
-				// filter: ["==", "$type", "Polygon"]
+				"paint": {
+					"fill-extrusion-color": "hsl(0, 11%, 99%)",
+					"fill-extrusion-height": 5
+				}
 			},
 			{
 				id: "label",
@@ -211,8 +252,7 @@
 		container: "map",
 		style: style,
 		// 边界
-		// maxBounds: [110.970513, 35.049351, 110.997706, 35.063066],
-		maxBounds: [112.482377, 37.847588, 112.511254, 37.867658],
+		// maxBounds: [112.482377, 37.847588, 112.511254, 37.867658],
 		// center: [110.981827, 35.053046],
 		center: [112.502060, 37.866723],
 		pitch: 40, //倾斜角
@@ -220,8 +260,7 @@
 		zoom: 14
 	});
 	map.on("load", () => {
-		// changeColor();
-		// rotateCamera(0);
+		//
 	});
 
 	// 更改颜色

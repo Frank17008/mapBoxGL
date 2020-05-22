@@ -1,0 +1,14 @@
+{
+"name": "D:/mapBoxGL/PBF/HYDPG",
+"description": "D:/mapBoxGL/PBF/HYDPG",
+"version": "2",
+"minzoom": "0",
+"maxzoom": "15",
+"center": "112.494507,37.861844,15",
+"bounds": "112.482421,37.854828,112.511252,37.867657",
+"type": "overlay",
+"format": "pbf",
+"generator": "tippecanoe v1.35.0",
+"generator_options": "tippecanoe -e D:/mapBoxGL/PBF/HYDPG -pC -Z 0 -z 15 -f D:/geojson/HYDPG.json",
+"json": "{\"vector_layers\": [ { \"id\": \"HYDPG\", \"description\": \"\", \"minzoom\": 0, \"maxzoom\": 15, \"fields\": {\"Name\": \"String\", \"SFBZ\": \"String\", \"XSDJ\": \"String\"} } ],\"tilestats\": {\"layerCount\": 1,\"layers\": [{\"layer\": \"HYDPG\",\"count\": 2,\"geometry\": \"Polygon\",\"attributeCount\": 3,\"attributes\": [{\"attribute\": \"Name\",\"count\": 2,\"type\": \"string\",\"values\": [\"玉门河\",\"虎峪河\"]},{\"attribute\": \"SFBZ\",\"count\": 1,\"type\": \"string\",\"values\": [\"\"]},{\"attribute\": \"XSDJ\",\"count\": 1,\"type\": \"string\",\"values\": [\"\"]}]}]}}"
+}

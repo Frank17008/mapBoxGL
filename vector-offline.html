@@ -1,651 +1,544 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-	<meta charset="UTF-8" />
-	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-	<meta http-equiv="X-UA-Compatible" content="ie=edge" />
-	<title>mapBox Demo</title>
-	<script src="mapbox/mapbox-gl.js"></script>
-	<link href="mapbox/mapbox-gl.css" rel="stylesheet" />
-	<style type="text/css">
-		body {
-			margin: 0;
-			padding: 0;
-		}
-
-		#map {
-			position: absolute;
-			top: 0;
-			left: 0;
-			width: 100%;
-			height: 100%;
-		}
-
-		#swatches {
-			position: absolute;
-			top: 10px;
-			left: 10px;
-			width: 200px;
-		}
-
-		#swatches button {
-			display: inline-block;
-			width: 36px;
-			height: 20px;
-			border: none;
-			cursor: pointer;
-		}
-	</style>
-</head>
-
-<body>
-	<div id="map"></div>
-	<div id="swatches"></div>
-
-</body>
-
-<script>
-	var style = {
-		"version": 8,
-		"name": "山西数据测试",
-		"metadata": {
-			"mapbox:autocomposite": true,
-			"mapbox:type": "template",
-			"mapbox:sdk-support": {
-				"js": "1.9.0",
-				"android": "8.6.0",
-				"ios": "5.6.0"
-			},
-			"mapbox:groups": {
-				"63308e9c73f2eca901a405a4f4cc9779": {
-					"name": "park",
-					"collapsed": true
-				},
-				"75e2502c3471b5c8485f03f715b5bc16": {
-					"name": "Poi",
-					"collapsed": true
-				},
-				"Land & water, land": {
-					"collapsed": false
-				},
-				"Land & water, water": {
-					"collapsed": false
-				},
-				"Land & water, built": {
-					"collapsed": false
-				},
-				"Administrative boundaries, admin": {
-					"collapsed": true
-				}
-			},
-			"mapbox:uiParadigm": "layers"
-		},
-		"center": [112.49376245853728, 37.851387894164475],
-		"zoom": 16.47641389624026,
-		"bearing": 0,
-		"pitch": 54.50000000000001,
-		"sources": {
-			"ROAD": {
-				"tiles": [
-					"http://localhost:8089/pbf/ROAD/{z}/{x}/{y}.pbf",
-
-				],
-				"type": "vector"
-			},
-			"BLDPG": {
-				"tiles": [
-					"http://localhost:8089/pbf/BLDPG/{z}/{x}/{y}.pbf",
-				],
-				"type": "vector"
-			},
-			"BLDNUMPT": {
-				"tiles": [
-					"http://localhost:8089/pbf/BLDNUMPT/{z}/{x}/{y}.pbf",
-				],
-				"type": "vector"
-			},
-			"FUNCPG": {
-				"tiles": [
-					"http://localhost:8089/pbf/FUNCPG/{z}/{x}/{y}.pbf",
-				],
-				"type": "vector"
-			},
-			"HYDPG": {
-				"tiles": [
-					"http://localhost:8089/pbf/HYDPG/{z}/{x}/{y}.pbf",
-				],
-				"type": "vector"
-			},
-			"POI": {
-				"tiles": [
-					"http://localhost:8089/pbf/POI/{z}/{x}/{y}.pbf",
-				],
-				"type": "vector"
-			},
-			"TOWNPL": {
-				"tiles": [
-					"http://localhost:8089/pbf/TOWNPL/{z}/{x}/{y}.pbf",
-				],
-				"type": "vector"
-			},
-			"VEGPG": {
-				"tiles": [
-					"http://localhost:8089/pbf/VEGPG/{z}/{x}/{y}.pbf",
-				],
-				"type": "vector"
-			},
-			"FUNCPT": {
-				"tiles": [
-					"http://localhost:8089/pbf/FUNCPT/{z}/{x}/{y}.pbf",
-				],
-				"type": "vector"
-			},
-		},
-		"sprite": "mapbox://sprites/frankdong007/ckacblz0g563h1ioazkgogjv9/1t1zvwn5br6f76etgh9qcq0d3",
-		"glyphs": "mapbox://fonts/frankdong007/{fontstack}/{range}.pbf",
-		"layers": [{
-				"id": "background",
-				"type": "background",
-				"layout": {},
-				"paint": {
-					"background-color": "hsl(0, 7%, 94%)"
-				}
-			},
-			{
-				"id": "water-way",
-				"type": "fill",
-				"source": "HYDPG",
-				"source-layer": "HYDPG",
-				"layout": {},
-				"paint": {
-					"fill-color": "rgb(178, 206, 254)"
-				}
-			},
-			{
-				"id": "park-ground",
-				"type": "fill",
-				"metadata": {
-					"mapbox:group": "63308e9c73f2eca901a405a4f4cc9779"
-				},
-				"source": "VEGPG",
-				"source-layer": "VEGPG",
-				"layout": {},
-				"paint": {
-					"fill-color": "hsl(115, 60%, 80%)"
-				}
-			},
-			{
-				"id": "park-label",
-				"type": "symbol",
-				"metadata": {
-					"mapbox:group": "63308e9c73f2eca901a405a4f4cc9779"
-				},
-				"source": "VEGPG",
-				"source-layer": "VEGPG",
-				"layout": {
-					"text-field": ["to-string", ["get", "Name"]],
-					"text-size": 14
-				},
-				"paint": {
-					"text-color": "hsl(138, 34%, 64%)"
-				}
-			},
-			{
-				"id": "school-base",
-				"type": "fill",
-				"source": "FUNCPG",
-				"source-layer": "FUNCPG",
-				"filter": ["match", ["get", "TYPE"],
-					["学校"], true, false
-				],
-				"layout": {},
-				"paint": {
-					"fill-color": [
-						"interpolate",
-						["linear"],
-						["zoom"],
-						12,
-						"hsla(0, 0%, 100%, 0)",
-						15,
-						"hsl(202, 39%, 91%)",
-						22,
-						"hsl(202, 58%, 81%)"
-					]
-				}
-			},
-			{
-				"id": "hospital-base",
-				"type": "fill",
-				"source": "FUNCPG",
-				"source-layer": "FUNCPG",
-				"minzoom": 12,
-				"filter": ["match", ["get", "TYPE"],
-					["医院", "党政机关"], true, false
-				],
-				"layout": {},
-				"paint": {
-					"fill-color": "hsl(0, 68%, 91%)"
-				}
-			},
-			{
-				"id": "road-2",
-				"type": "line",
-				"source": "ROAD",
-				"source-layer": "ROAD",
-				"minzoom": 12,
-				"filter": [
-					"all",
-					[
-						"match",
-						["geometry-type"],
-						["Polygon", "LineString"],
-						true,
-						false
-					],
-					["match", ["get", "LaneNum"],
-						[3, 2], false, true
-					]
-				],
-				"layout": {},
-				"paint": {
-					"line-color": "hsl(44, 8%, 100%)",
-					"line-width": 5
-				}
-			},
-			{
-				"id": "road",
-				"type": "line",
-				"source": "ROAD",
-				"source-layer": "ROAD",
-				"filter": [
-					"all",
-					["match", ["geometry-type"],
-						["LineString"], true, false
-					],
-					["match", ["get", "LaneNum"],
-						[3, 2], true, false
-					]
-				],
-				"layout": {},
-				"paint": {
-					"line-color": "#fed052",
-					"line-width": [
-						"interpolate",
-						["linear"],
-						["zoom"],
-						2,
-						5,
-						12,
-						10,
-						22,
-						11
-					]
-				}
-			},
-			{
-				"id": "building",
-				"type": "fill-extrusion",
-				"source": "BLDPG",
-				"source-layer": "BLDPG",
-				"layout": {},
-				"paint": {
-					"fill-extrusion-color": "hsl(0, 11%, 99%)",
-					"fill-extrusion-height": 5
-				}
-			},
-			{
-				"id": "poi-label",
-				"type": "symbol",
-				"metadata": {
-					"mapbox:group": "75e2502c3471b5c8485f03f715b5bc16"
-				},
-				"source": "POI",
-				"source-layer": "POI",
-				"minzoom": 18.1,
-				"layout": {
-					"text-field": ["to-string", ["get", "Name"]],
-					"text-size": 10
-				},
-				"paint": {
-					"text-color": "hsl(72, 6%, 29%)"
-				}
-			},
-			{
-				"id": "zhuzhai-point",
-				"type": "symbol",
-				"metadata": {
-					"mapbox:group": "75e2502c3471b5c8485f03f715b5bc16"
-				},
-				"source": "BLDNUMPT",
-				"source-layer": "BLDNUMPT",
-				"minzoom": 10.8,
-				"layout": {
-					"icon-image": "小区",
-					"text-size": 12,
-					"text-offset": [0.1, 1],
-					"text-field": ["to-string", ["get", "NAME"]]
-				},
-				"paint": {
-					"text-color": "hsl(0, 4%, 49%)",
-					"text-translate": [0, -30]
-				}
-			},
-			{
-				"id": "school-point",
-				"type": "symbol",
-				"metadata": {
-					"mapbox:group": "75e2502c3471b5c8485f03f715b5bc16"
-				},
-				"source": "FUNCPT",
-				"source-layer": "FUNCPT",
-				"minzoom": 13.9,
-				"filter": [
-					"all",
-					["match", ["geometry-type"],
-						["Point"], true, false
-					],
-					["match", ["get", "TYPE"],
-						["学校"], true, false
-					]
-				],
-				"layout": {
-					"text-field": ["to-string", ["get", "NAME"]],
-					"icon-image": "学校",
-					"text-size": 12,
-					"icon-size": ["interpolate", ["linear"],
-						["zoom"], 0, 1, 22, 1
-					],
-					"text-anchor": "bottom"
-				},
-				"paint": {
-					"text-color": "hsl(0, 3%, 47%)",
-					"text-translate": [0, -10]
-				}
-			},
-			{
-				"id": "hospital-point",
-				"type": "symbol",
-				"metadata": {
-					"mapbox:group": "75e2502c3471b5c8485f03f715b5bc16"
-				},
-				"source": "FUNCPT",
-				"source-layer": "FUNCPT",
-				"filter": [
-					"all",
-					["match", ["geometry-type"],
-						["Point"], true, false
-					],
-					["match", ["get", "TYPE"],
-						["医院"], true, false
-					]
-				],
-				"layout": {
-					"text-field": ["to-string", ["get", "NAME"]],
-					"text-size": 13,
-					"icon-image": "医院",
-					"icon-size": 0.1,
-					"text-max-width": 5,
-					"text-anchor": "left"
-				},
-				"paint": {
-					"text-color": "hsl(0, 2%, 44%)",
-					"text-translate": [10, 0]
-				}
-			},
-			{
-				"id": "gov-point",
-				"type": "symbol",
-				"metadata": {
-					"mapbox:group": "75e2502c3471b5c8485f03f715b5bc16"
-				},
-				"source": "FUNCPT",
-				"source-layer": "FUNCPT",
-				"minzoom": 12.6,
-				"filter": [
-					"all",
-					["match", ["geometry-type"],
-						["Point"], true, false
-					],
-					["match", ["get", "TYPE"],
-						["党政机关"], true, false
-					]
-				],
-				"layout": {
-					"text-field": ["to-string", ["get", "NAME"]],
-					"text-size": [
-						"interpolate",
-						["linear"],
-						["zoom"],
-						0,
-						0,
-						12,
-						12,
-						15,
-						13
-					],
-					"icon-image": "党政机关",
-					"text-anchor": "left"
-				},
-				"paint": {
-					"text-color": "hsl(0, 13%, 47%)",
-					"text-translate": [5, 0]
-				}
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+		<title>mapBox Demo</title>
+		<script src="mapbox/mapbox-gl.js"></script>
+		<link href="mapbox/mapbox-gl.css" rel="stylesheet" />
+		<style type="text/css">
+			body {
+				margin: 0;
+				padding: 0;
 			}
-		],
-		"created": "2020-05-18T10:03:20.864Z",
-		"id": "ckacblz0g563h1ioazkgogjv9",
-		"modified": "2020-05-21T02:41:03.107Z",
-		"owner": "frankdong007",
-		"visibility": "private",
-		"draft": false
-	}
 
-	// 如果是要使用mapbox的在线样式须注册accesstoken
-	mapboxgl.accessToken =
-		"pk.eyJ1IjoiZnJhbmtkb25nMDA3IiwiYSI6ImNrOXY0ZjdoYjA4MnYzbHBnYzA2aTJkeXoifQ.nB4LKjrVCergxIDQOxVGDg";
-	var map = new mapboxgl.Map({
-		container: "map",
-		style: style,
-		// 边界
-		// maxBounds: [110.970513, 35.049351, 110.997706, 35.063066],
-		// maxBounds: [112.482377, 37.847588, 112.511254, 37.867658],
-		// center: [110.981827, 35.053046],
-		center: [112.495260, 37.856723],
-		pitch: 50,
-		bearing: 0, //方位角
-		zoom: 16
-	});
-	map.on("load", () => {
-		//
-	});
+			#map {
+				position: absolute;
+				top: 0;
+				left: 0;
+				width: 100%;
+				height: 100%;
+			}
 
-	// 更改颜色
-	function changeColor() {
-		var swatches = document.getElementById('swatches');
-		colors.forEach(function (color) {
-			var button = document.createElement('button');
-			button.style.backgroundColor = color;
-			// button.addEventListener('click', function () {
-			// 	map.setPaintProperty('3D-building', 'fill-extrusion-color', color);
-			// });
-			// swatches.appendChild(button);
+			#swatches {
+				position: absolute;
+				top: 10px;
+				left: 10px;
+				width: 200px;
+			}
+
+			#swatches button {
+				display: inline-block;
+				width: 36px;
+				height: 20px;
+				border: none;
+				cursor: pointer;
+			}
+		</style>
+	</head>
+
+	<body>
+		<div id="map"></div>
+		<div id="swatches"></div>
+	</body>
+
+	<script>
+		var style = {
+			version: 8,
+			name: "山西数据测试",
+			metadata: {
+				"mapbox:autocomposite": true,
+				"mapbox:type": "template",
+				"mapbox:sdk-support": {
+					js: "1.9.0",
+					android: "8.6.0",
+					ios: "5.6.0"
+				},
+				"mapbox:groups": {
+					"63308e9c73f2eca901a405a4f4cc9779": {
+						name: "park",
+						collapsed: true
+					},
+					"75e2502c3471b5c8485f03f715b5bc16": {
+						name: "Poi",
+						collapsed: true
+					},
+					"Land & water, land": {
+						collapsed: false
+					},
+					"Land & water, water": {
+						collapsed: false
+					},
+					"Land & water, built": {
+						collapsed: false
+					},
+					"Administrative boundaries, admin": {
+						collapsed: true
+					}
+				},
+				"mapbox:uiParadigm": "layers"
+			},
+			center: [112.49376245853728, 37.851387894164475],
+			zoom: 16.47641389624026,
+			bearing: 0,
+			pitch: 54.50000000000001,
+			sources: {
+				ROAD: {
+					tiles: ["http://localhost:8089/pbf/ROAD/{z}/{x}/{y}.pbf"],
+					type: "vector"
+				},
+				BLDPG: {
+					tiles: ["http://localhost:8089/pbf/BLDPG/{z}/{x}/{y}.pbf"],
+					type: "vector"
+				},
+				BLDNUMPT: {
+					tiles: ["http://localhost:8089/pbf/BLDNUMPT/{z}/{x}/{y}.pbf"],
+					type: "vector"
+				},
+				FUNCPG: {
+					tiles: ["http://localhost:8089/pbf/FUNCPG/{z}/{x}/{y}.pbf"],
+					type: "vector"
+				},
+				HYDPG: {
+					tiles: ["http://localhost:8089/pbf/HYDPG/{z}/{x}/{y}.pbf"],
+					type: "vector"
+				},
+				POI: {
+					tiles: ["http://localhost:8089/pbf/POI/{z}/{x}/{y}.pbf"],
+					type: "vector"
+				},
+				TOWNPL: {
+					tiles: ["http://localhost:8089/pbf/TOWNPL/{z}/{x}/{y}.pbf"],
+					type: "vector"
+				},
+				VEGPG: {
+					tiles: ["http://localhost:8089/pbf/VEGPG/{z}/{x}/{y}.pbf"],
+					type: "vector"
+				},
+				FUNCPT: {
+					tiles: ["http://localhost:8089/pbf/FUNCPT/{z}/{x}/{y}.pbf"],
+					type: "vector"
+				}
+			},
+			sprite: "mapbox://sprites/frankdong007/ckacblz0g563h1ioazkgogjv9/1t1zvwn5br6f76etgh9qcq0d3",
+			glyphs: "mapbox://fonts/frankdong007/{fontstack}/{range}.pbf",
+			layers: [
+				{
+					id: "background",
+					type: "background",
+					layout: {},
+					paint: {
+						"background-color": "hsl(0, 7%, 94%)"
+					}
+				},
+				{
+					id: "water-way",
+					type: "fill",
+					source: "HYDPG",
+					"source-layer": "HYDPG",
+					layout: {},
+					paint: {
+						"fill-color": "rgb(178, 206, 254)"
+					}
+				},
+				{
+					id: "park-ground",
+					type: "fill",
+					metadata: {
+						"mapbox:group": "63308e9c73f2eca901a405a4f4cc9779"
+					},
+					source: "VEGPG",
+					"source-layer": "VEGPG",
+					layout: {},
+					paint: {
+						"fill-color": "hsl(115, 60%, 80%)"
+					}
+				},
+				{
+					id: "park-label",
+					type: "symbol",
+					metadata: {
+						"mapbox:group": "63308e9c73f2eca901a405a4f4cc9779"
+					},
+					source: "VEGPG",
+					"source-layer": "VEGPG",
+					layout: {
+						"text-field": ["to-string", ["get", "Name"]],
+						"text-size": 14
+					},
+					paint: {
+						"text-color": "hsl(138, 34%, 64%)"
+					}
+				},
+				{
+					id: "school-base",
+					type: "fill",
+					source: "FUNCPG",
+					"source-layer": "FUNCPG",
+					filter: ["match", ["get", "TYPE"], ["学校"], true, false],
+					layout: {},
+					paint: {
+						"fill-color": ["interpolate", ["linear"], ["zoom"], 12, "hsla(0, 0%, 100%, 0)", 15, "hsl(202, 39%, 91%)", 22, "hsl(202, 58%, 81%)"]
+					}
+				},
+				{
+					id: "hospital-base",
+					type: "fill",
+					source: "FUNCPG",
+					"source-layer": "FUNCPG",
+					minzoom: 12,
+					filter: ["match", ["get", "TYPE"], ["医院", "党政机关"], true, false],
+					layout: {},
+					paint: {
+						"fill-color": "hsl(0, 68%, 91%)"
+					}
+				},
+				{
+					id: "road-2",
+					type: "line",
+					source: "ROAD",
+					"source-layer": "ROAD",
+					minzoom: 12,
+					filter: ["all", ["match", ["geometry-type"], ["Polygon", "LineString"], true, false], ["match", ["get", "LaneNum"], [3, 2], false, true]],
+					layout: {},
+					paint: {
+						"line-color": "hsl(44, 8%, 100%)",
+						"line-width": 5
+					}
+				},
+				{
+					id: "road",
+					type: "line",
+					source: "ROAD",
+					"source-layer": "ROAD",
+					filter: ["all", ["match", ["geometry-type"], ["LineString"], true, false], ["match", ["get", "LaneNum"], [3, 2], true, false]],
+					layout: {},
+					paint: {
+						"line-color": "#fed052",
+						"line-width": ["interpolate", ["linear"], ["zoom"], 2, 5, 12, 10, 22, 11]
+					}
+				},
+				{
+					id: "building",
+					type: "fill-extrusion",
+					source: "BLDPG",
+					"source-layer": "BLDPG",
+					layout: {},
+					paint: {
+						"fill-extrusion-color": "hsl(0, 11%, 99%)",
+						"fill-extrusion-height": 5
+					}
+				},
+				{
+					id: "poi-label",
+					type: "symbol",
+					metadata: {
+						"mapbox:group": "75e2502c3471b5c8485f03f715b5bc16"
+					},
+					source: "POI",
+					"source-layer": "POI",
+					minzoom: 18.1,
+					layout: {
+						"text-field": ["to-string", ["get", "Name"]],
+						"text-size": 10
+					},
+					paint: {
+						"text-color": "hsl(72, 6%, 29%)"
+					}
+				},
+				{
+					id: "zhuzhai-point",
+					type: "symbol",
+					metadata: {
+						"mapbox:group": "75e2502c3471b5c8485f03f715b5bc16"
+					},
+					source: "BLDNUMPT",
+					"source-layer": "BLDNUMPT",
+					minzoom: 10.8,
+					layout: {
+						"icon-image": "小区",
+						"text-size": 12,
+						"text-offset": [0.1, 1],
+						"text-field": ["to-string", ["get", "NAME"]]
+					},
+					paint: {
+						"text-color": "hsl(0, 4%, 49%)",
+						"text-translate": [0, -30]
+					}
+				},
+				{
+					id: "school-point",
+					type: "symbol",
+					metadata: {
+						"mapbox:group": "75e2502c3471b5c8485f03f715b5bc16"
+					},
+					source: "FUNCPT",
+					"source-layer": "FUNCPT",
+					minzoom: 13.9,
+					filter: ["all", ["match", ["geometry-type"], ["Point"], true, false], ["match", ["get", "TYPE"], ["学校"], true, false]],
+					layout: {
+						"text-field": ["to-string", ["get", "NAME"]],
+						"icon-image": "学校",
+						"text-size": 12,
+						"icon-size": ["interpolate", ["linear"], ["zoom"], 0, 1, 22, 1],
+						"text-anchor": "bottom"
+					},
+					paint: {
+						"text-color": "hsl(0, 3%, 47%)",
+						"text-translate": [0, -10]
+					}
+				},
+				{
+					id: "hospital-point",
+					type: "symbol",
+					metadata: {
+						"mapbox:group": "75e2502c3471b5c8485f03f715b5bc16"
+					},
+					source: "FUNCPT",
+					"source-layer": "FUNCPT",
+					filter: ["all", ["match", ["geometry-type"], ["Point"], true, false], ["match", ["get", "TYPE"], ["医院"], true, false]],
+					layout: {
+						"text-field": ["to-string", ["get", "NAME"]],
+						"text-size": 13,
+						"icon-image": "医院",
+						"icon-size": 0.1,
+						"text-max-width": 5,
+						"text-anchor": "left"
+					},
+					paint: {
+						"text-color": "hsl(0, 2%, 44%)",
+						"text-translate": [10, 0]
+					}
+				},
+				{
+					id: "gov-point",
+					type: "symbol",
+					metadata: {
+						"mapbox:group": "75e2502c3471b5c8485f03f715b5bc16"
+					},
+					source: "FUNCPT",
+					"source-layer": "FUNCPT",
+					minzoom: 12.6,
+					filter: ["all", ["match", ["geometry-type"], ["Point"], true, false], ["match", ["get", "TYPE"], ["党政机关"], true, false]],
+					layout: {
+						"text-field": ["to-string", ["get", "NAME"]],
+						"text-size": ["interpolate", ["linear"], ["zoom"], 0, 0, 12, 12, 15, 13],
+						"icon-image": "党政机关",
+						"text-anchor": "left"
+					},
+					paint: {
+						"text-color": "hsl(0, 13%, 47%)",
+						"text-translate": [5, 0]
+					}
+				}
+			],
+			created: "2020-05-18T10:03:20.864Z",
+			id: "ckacblz0g563h1ioazkgogjv9",
+			modified: "2020-05-21T02:41:03.107Z",
+			owner: "frankdong007",
+			visibility: "private",
+			draft: false
+		};
+
+		// 如果是要使用mapbox的在线样式须注册accesstoken
+		mapboxgl.accessToken = "pk.eyJ1IjoiZnJhbmtkb25nMDA3IiwiYSI6ImNrOXY0ZjdoYjA4MnYzbHBnYzA2aTJkeXoifQ.nB4LKjrVCergxIDQOxVGDg";
+		var map = new mapboxgl.Map({
+			container: "map",
+			style: style,
+			// 边界
+			// maxBounds: [110.970513, 35.049351, 110.997706, 35.063066],
+			// maxBounds: [112.482377, 37.847588, 112.511254, 37.867658],
+			// center: [110.981827, 35.053046],
+			center: [112.49526, 37.856723],
+			pitch: 50,
+			bearing: 0, //方位角
+			zoom: 16
 		});
-		var i = -1;
-		setInterval(() => {
-			i++;
-			i = i >= 10 ? 0 : i;
-			// 更改渲染颜色 layer-id propertyName propertyValue
-			map.setPaintProperty('3D-building', 'fill-extrusion-color', colors[i]);
-		}, 1000);
-	}
-	// 环绕某点飞行
-	function rotateCamera(timestamp) {
-		// clamp the rotation between 0 -360 degrees
-		// Divide timestamp by 100 to slow rotation to ~10 degrees / sec
-		map.rotateTo((timestamp / 100) % 360, {
-			duration: 0
+		map.on("load", () => {
+			//
 		});
-		// Request the next frame of the animation.
-		requestAnimationFrame(rotateCamera);
-	}
 
+		// 更改颜色
+		function changeColor() {
+			var swatches = document.getElementById("swatches");
+			colors.forEach(function (color) {
+				var button = document.createElement("button");
+				button.style.backgroundColor = color;
+				// button.addEventListener('click', function () {
+				// 	map.setPaintProperty('3D-building', 'fill-extrusion-color', color);
+				// });
+				// swatches.appendChild(button);
+			});
+			var i = -1;
+			setInterval(() => {
+				i++;
+				i = i >= 10 ? 0 : i;
+				// 更改渲染颜色 layer-id propertyName propertyValue
+				map.setPaintProperty("3D-building", "fill-extrusion-color", colors[i]);
+			}, 1000);
+		}
+		// 环绕某点飞行
+		function rotateCamera(timestamp) {
+			// clamp the rotation between 0 -360 degrees
+			// Divide timestamp by 100 to slow rotation to ~10 degrees / sec
+			map.rotateTo((timestamp / 100) % 360, {
+				duration: 0
+			});
+			// Request the next frame of the animation.
+			requestAnimationFrame(rotateCamera);
+		}
 
-	// 添加marker
-	function addMarkers(markers) {
-		return markers.map((marker) => {
-			let el = document.createElement("div");
-			el.id = "marker";
-			el.style.backgroundImage = `url(${marker.url})`;
-			el.style.backgroundSize = "100% 100%";
-			el.style.width = `${marker.size[0]}px`;
-			el.style.height = `${marker.size[1]}px`;
-			// el.addEventListener('click', (e) => {
-			//     e.stopPropagation();
-			//     console.log(e.target);
-			// }, false);
-			let _marker = new mapboxgl.Marker({
+		// 添加marker
+		function addMarkers(markers) {
+			return markers.map((marker) => {
+				let el = document.createElement("div");
+				el.id = "marker";
+				el.style.backgroundImage = `url(${marker.url})`;
+				el.style.backgroundSize = "100% 100%";
+				el.style.width = `${marker.size[0]}px`;
+				el.style.height = `${marker.size[1]}px`;
+				// el.addEventListener('click', (e) => {
+				//     e.stopPropagation();
+				//     console.log(e.target);
+				// }, false);
+				let _marker = new mapboxgl.Marker({
 					element: el, //HTML元素
 					anchor: "bottom", //设置图标点相对于经纬度的位置 (bottom 代表图标点的底部与所设置的经纬度相接) 默认center
 					draggable: false //是否可拖拽
 				})
-				.setLngLat([marker.lontitude, marker.latitude])
-				.setPopup(createPopup())
-				.addTo(map)
-				.on("dragend", (e) => {
-					console.log(e, _marker.getLngLat());
-				});
-			// .remove()
-			// .setLngLat()
-			// .setPopup(new mapboxgl.Popup())
-			// .setDraggable(shouldBeDraggable true|false)
-			return _marker;
-		});
-	}
+					.setLngLat([marker.lontitude, marker.latitude])
+					.setPopup(createPopup())
+					.addTo(map)
+					.on("dragend", (e) => {
+						console.log(e, _marker.getLngLat());
+					});
+				// .remove()
+				// .setLngLat()
+				// .setPopup(new mapboxgl.Popup())
+				// .setDraggable(shouldBeDraggable true|false)
+				return _marker;
+			});
+		}
 
-	// 全屏控件
-	map.addControl(new mapboxgl.FullscreenControl());
-	// 比例尺控件
-	map.addControl(
-		new mapboxgl.ScaleControl({
-			maxWidth: 80 //控件的最大长度
-			// unit: 'imperial' 'metric' //单位 默认米制单位
-		})
-	);
-	// 导航控件
-	map.addControl(new mapboxgl.NavigationControl());
+		// 全屏控件
+		map.addControl(new mapboxgl.FullscreenControl());
+		// 比例尺控件
+		map.addControl(
+			new mapboxgl.ScaleControl({
+				maxWidth: 80 //控件的最大长度
+				// unit: 'imperial' 'metric' //单位 默认米制单位
+			})
+		);
+		// 导航控件
+		map.addControl(new mapboxgl.NavigationControl());
 
+		// 加载地图厂商提供的含建筑高度的数据(通过工具转换的geojson数据)
+		function addGeojsonFromOther() {
+			map.addSource("main", {
+				type: "geojson",
+				data: "http://localhost:5000/BLDPG.json"
+			});
+			map.addLayer({
+				id: "park-boundary",
+				type: "fill",
+				source: "main",
+				paint: {
+					"fill-color": "#888888",
+					"fill-opacity": 0.4
+				},
+				filter: ["==", "$type", "Polygon"]
+			});
+			map.addLayer({
+				id: "park-volcanoes",
+				type: "circle",
+				source: "main",
+				paint: {
+					"circle-radius": 6,
+					"circle-color": "#B42222"
+				},
+				filter: ["==", "$type", "Point"]
+			});
+			map.addLayer({
+				id: "entity_layer",
+				type: "fill",
+				source: "main",
+				type: "fill-extrusion",
+				layout: {},
+				minzoom: 14,
+				paint: {
+					"fill-extrusion-color": "#fff",
+					"fill-extrusion-height": ["interpolate", ["linear"], ["zoom"], 14, 0, 14.05, ["get", "Height"]],
+					"fill-extrusion-base": ["interpolate", ["linear"], ["zoom"], 14, 0, 14.05, ["get", "base_height"]],
+					"fill-extrusion-opacity": 1
+				},
+				filter: ["==", "$type", "Polygon"]
+			});
+		}
 
-	// 加载地图厂商提供的含建筑高度的数据(通过工具转换的geojson数据)
-	function addGeojsonFromOther() {
-		map.addSource("main", {
-			type: "geojson",
-			data: "http://localhost:5000/BLDPG.json"
-		});
-		map.addLayer({
-			id: "park-boundary",
-			type: "fill",
-			source: "main",
-			paint: {
-				"fill-color": "#888888",
-				"fill-opacity": 0.4
-			},
-			filter: ["==", "$type", "Polygon"]
-		});
-		map.addLayer({
-			id: "park-volcanoes",
-			type: "circle",
-			source: "main",
-			paint: {
-				"circle-radius": 6,
-				"circle-color": "#B42222"
-			},
-			filter: ["==", "$type", "Point"]
-		});
-		map.addLayer({
-			id: "entity_layer",
-			type: "fill",
-			source: "main",
-			type: "fill-extrusion",
-			layout: {},
-			minzoom: 14,
-			paint: {
-				"fill-extrusion-color": "#fff",
-				"fill-extrusion-height": ["interpolate", ["linear"],
-					["zoom"], 14, 0, 14.05, ["get", "Height"]
-				],
-				"fill-extrusion-base": ["interpolate", ["linear"],
-					["zoom"], 14, 0, 14.05, ["get", "base_height"]
-				],
-				"fill-extrusion-opacity": 1
-			},
-			filter: ["==", "$type", "Polygon"]
-		});
-	}
+		// 加载自定义下载的geojson数据
+		function addGeojsonByOwn() {
+			map.addSource("lines", {
+				type: "geojson",
+				data: "http://localhost:8089/mvt/lines.json",
+				buffer: 0
+			});
+			map.addSource("multipolygons", {
+				type: "geojson",
+				data: "http://localhost:8089/mvt/multipolygons.json",
+				buffer: 0
+			});
+			map.addSource("points", {
+				type: "geojson",
+				data: "http://localhost:8089/mvt/points.json",
+				buffer: 0,
+				maxzoom: 12
+			});
+			map.addLayer({
+				id: "park-boundary",
+				type: "fill",
+				source: "multipolygons",
+				paint: {
+					"fill-color": "#888888",
+					"fill-opacity": 0.4
+				},
+				filter: ["==", "$type", "Polygon"]
+			});
 
-	// 加载自定义下载的geojson数据
-	function addGeojsonByOwn() {
-		map.addSource("lines", {
-			type: "geojson",
-			data: "http://localhost:8089/mvt/lines.json",
-			buffer: 0
-		});
-		map.addSource("multipolygons", {
-			type: "geojson",
-			data: "http://localhost:8089/mvt/multipolygons.json",
-			buffer: 0
-		});
-		map.addSource("points", {
-			type: "geojson",
-			data: "http://localhost:8089/mvt/points.json",
-			buffer: 0,
-			maxzoom: 12
-		});
-		map.addLayer({
-			id: "park-boundary",
-			type: "fill",
-			source: "multipolygons",
-			paint: {
-				"fill-color": "#888888",
-				"fill-opacity": 0.4
-			},
-			filter: ["==", "$type", "Polygon"]
-		});
+			map.addLayer({
+				id: "park-volcanoes",
+				type: "circle",
+				source: "points",
+				paint: {
+					"circle-radius": 6,
+					"circle-color": "#B42222"
+				},
+				filter: ["==", "$type", "Point"]
+			});
+		}
 
-		map.addLayer({
-			id: "park-volcanoes",
-			type: "circle",
-			source: "points",
-			paint: {
-				"circle-radius": 6,
-				"circle-color": "#B42222"
-			},
-			filter: ["==", "$type", "Point"]
-		});
-	}
+		function isSupport() {
+			return mapboxgl.supported();
+		}
 
-	function isSupport() {
-		return mapboxgl.supported();
-	}
-
-	function getMockData() {
-		let data = [{
-				id: "10004",
-				lontitude: 108.96269898161594,
-				latitude: 34.268529071739074,
-				url: "./centerDevice.svg",
-				size: [20, (20 * 48) / 35]
-			},
-			{
-				id: "10005",
-				lontitude: 108.86244845161594,
-				latitude: 34.363429024739074,
-				url: "./centerDevice.svg",
-				size: [20, (20 * 48) / 35]
-			}
-		];
-		return data;
-	}
-</script>
-
+		function getMockData() {
+			let data = [
+				{
+					id: "10004",
+					lontitude: 108.96269898161594,
+					latitude: 34.268529071739074,
+					url: "./centerDevice.svg",
+					size: [20, (20 * 48) / 35]
+				},
+				{
+					id: "10005",
+					lontitude: 108.86244845161594,
+					latitude: 34.363429024739074,
+					url: "./centerDevice.svg",
+					size: [20, (20 * 48) / 35]
+				}
+			];
+			return data;
+		}
+	</script>
 </html>

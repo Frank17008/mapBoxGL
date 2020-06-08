@@ -6,8 +6,8 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 	<meta http-equiv="X-UA-Compatible" content="ie=edge" />
 	<title>mapBox Demo</title>
-	<script src="mapbox/mapbox-gl.js"></script>
-	<link href="mapbox/mapbox-gl.css" rel="stylesheet" />
+	<script src="js/mapbox/mapbox-gl.js"></script>
+	<link href="js/mapbox/mapbox-gl.css" rel="stylesheet" />
 	<style type="text/css">
 		body {
 			margin: 0;
@@ -22,17 +22,15 @@
 			height: 100%;
 		}
 
-		#swatches {
+		.operate-buttons {
 			position: absolute;
 			top: 10px;
 			left: 10px;
-			width: 200px;
 		}
 
-		#swatches button {
-			display: inline-block;
-			width: 36px;
-			height: 20px;
+		.operate-buttons button {
+			background: #2d87f9;
+			color: #ffffff;
 			border: none;
 			cursor: pointer;
 		}
@@ -41,11 +39,17 @@
 
 <body>
 	<div id="map"></div>
-	<div id="swatches"></div>
+	<div class="operate-buttons">
+		<button id="swatches">建筑变色</button>
+		<button id="fly">环绕飞行</button>
+	</div>
 </body>
 
 <script>
 	const mapServer = window.location.host;
+	let colorTimer = null;
+	let flyTimer = null;
+
 	var style = {
 		version: 8,
 		name: "山西数据测试",
@@ -401,26 +405,42 @@
 		zoom: 16
 	});
 	map.on("load", () => {
-		//
+		document.getElementById("swatches").onclick = () => changeColor();
+		document.getElementById("fly").onclick = () => {
+			if (flyTimer) {
+				cancelAnimationFrame(flyTimer);
+				flyTimer = null;
+				return;
+			}
+			rotateCamera(0);
+		};
 	});
 
 	// 更改颜色
 	function changeColor() {
-		var swatches = document.getElementById("swatches");
-		colors.forEach(function (color) {
-			var button = document.createElement("button");
-			button.style.backgroundColor = color;
-			// button.addEventListener('click', function () {
-			// 	map.setPaintProperty('3D-building', 'fill-extrusion-color', color);
-			// });
-			// swatches.appendChild(button);
-		});
+		if (colorTimer) {
+			clearInterval(colorTimer);
+			colorTimer = null;
+			return;
+		}
+		var colors = [
+			'#ffffcc',
+			'#a1dab4',
+			'#41b6c4',
+			'#2c7fb8',
+			'#253494',
+			'#fed976',
+			'#feb24c',
+			'#fd8d3c',
+			'#f03b20',
+			'#bd0026'
+		];
 		var i = -1;
-		setInterval(() => {
+		colorTimer = setInterval(() => {
 			i++;
 			i = i >= 10 ? 0 : i;
 			// 更改渲染颜色 layer-id propertyName propertyValue
-			map.setPaintProperty("3D-building", "fill-extrusion-color", colors[i]);
+			map.setPaintProperty("building", "fill-extrusion-color", colors[i]);
 		}, 1000);
 	}
 	// 环绕某点飞行
@@ -431,7 +451,7 @@
 			duration: 0
 		});
 		// Request the next frame of the animation.
-		requestAnimationFrame(rotateCamera);
+		flyTimer = requestAnimationFrame(rotateCamera);
 	}
 
 	// 添加marker
@@ -565,6 +585,8 @@
 			filter: ["==", "$type", "Point"]
 		});
 	}
+
+
 
 	function isSupport() {
 		return mapboxgl.supported();

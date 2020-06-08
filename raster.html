@@ -6,8 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <title>mapBox raster Demo</title>
-    <script src="mapbox/mapbox-gl.js"></script>
-    <link href="mapbox/mapbox-gl.css" rel="stylesheet" />
+    <script src="js/mapbox/mapbox-gl.js"></script>
+    <link href="js/mapbox/mapbox-gl.css" rel="stylesheet" />
     <style type="text/css">
         body {
             margin: 0;
@@ -29,8 +29,9 @@
 </body>
 
 <script>
-    mapboxgl.accessToken =
-        "pk.eyJ1IjoiZnJhbmtkb25nMDA3IiwiYSI6ImNrOXY0ZjdoYjA4MnYzbHBnYzA2aTJkeXoifQ.nB4LKjrVCergxIDQOxVGDg";
+    // mapboxgl.accessToken =
+    //     "pk.eyJ1IjoiZnJhbmtkb25nMDA3IiwiYSI6ImNrOXY0ZjdoYjA4MnYzbHBnYzA2aTJkeXoifQ.nB4LKjrVCergxIDQOxVGDg";
+    const mapServer = window.location.host;
     var map = new mapboxgl.Map({
         container: "map",
         style: {
@@ -41,7 +42,7 @@
                 "raster-tiles": {
                     type: "raster",
                     tiles: [
-                        "https://map.geoq.cn/arcgis/rest/services/ChinaOnlineStreetPurplishBlue/MapServer/tile/{z}/{y}/{x}"
+                        `http://${mapServer}/gis/{z}/{y}/{x}.png`
 
                     ],
                     tileSize: 256
@@ -55,12 +56,11 @@
 
             }]
         },
-        // style: 'mapbox://styles/mapbox/light-v10', //在线资源
         // 边界
-        // maxBounds: [107.56470719340847, 33.61828311442923, 110.09705582657591, 34.78358526349461],
-        // center: [108.96269898161594, 34.268529071739074],
+        maxBounds: [107.56470719340847, 33.61828311442923, 110.09705582657591, 34.78358526349461],
+        center: [108.96269898161594, 34.268529071739074],
         maxBounds: [110.970513, 35.049351, 110.997706, 35.063066],
-        center: [110.981827, 35.053046],
+        // center: [110.981827, 35.053046],
         pitch: 40, //倾斜角
         bearing: 0, //方位角
         zoom: 12

@@ -21,16 +21,35 @@
 			width: 100%;
 			height: 100%;
 		}
+
+		.operate-buttons {
+			position: absolute;
+			top: 10px;
+			left: 10px;
+		}
+
+		.operate-buttons button {
+			background: #2d87f9;
+			color: #ffffff;
+			border: none;
+			cursor: pointer;
+		}
 	</style>
 </head>
 
 <body>
 	<div id="map"></div>
+	<div class="operate-buttons">
+		<button id="swatches">建筑变色</button>
+		<button id="fly">环绕飞行</button>
+	</div>
 </body>
 
 <script>
 	mapboxgl.accessToken =
 		"pk.eyJ1IjoiZnJhbmtkb25nMDA3IiwiYSI6ImNrOXY0ZjdoYjA4MnYzbHBnYzA2aTJkeXoifQ.nB4LKjrVCergxIDQOxVGDg";
+	let colorTimer = null;
+	let flyTimer = null;
 	var map = new mapboxgl.Map({
 		container: "map",
 		style: "mapbox://styles/frankdong007/ckacblz0g563h1ioazkgogjv9",
@@ -44,7 +63,17 @@
 	map.on("load", () => {
 		// changeColor();
 		// rotateCamera(0);
+		document.getElementById("swatches").onclick = () => changeColor();
+		document.getElementById("fly").onclick = () => {
+			if (flyTimer) {
+				cancelAnimationFrame(flyTimer);
+				flyTimer = null;
+				return;
+			}
+			rotateCamera(0);
+		};
 	});
+
 	// 全屏控件
 	map.addControl(new mapboxgl.FullscreenControl());
 	// 比例尺控件
@@ -74,6 +103,43 @@
 			}
 		];
 		return data;
+	}
+	// 更改颜色
+	function changeColor() {
+		if (colorTimer) {
+			clearInterval(colorTimer);
+			colorTimer = null;
+			return;
+		}
+		var colors = [
+			'#ffffcc',
+			'#a1dab4',
+			'#41b6c4',
+			'#2c7fb8',
+			'#253494',
+			'#fed976',
+			'#feb24c',
+			'#fd8d3c',
+			'#f03b20',
+			'#bd0026'
+		];
+		var i = -1;
+		colorTimer = setInterval(() => {
+			i++;
+			i = i >= 10 ? 0 : i;
+			// 更改渲染颜色 layer-id propertyName propertyValue
+			map.setPaintProperty("building", "fill-extrusion-color", colors[i]);
+		}, 1000);
+	}
+	// 环绕某点飞行
+	function rotateCamera(timestamp) {
+		// clamp the rotation between 0 -360 degrees
+		// Divide timestamp by 100 to slow rotation to ~10 degrees / sec
+		map.rotateTo((timestamp / 100) % 360, {
+			duration: 0
+		});
+		// Request the next frame of the animation.
+		flyTimer = requestAnimationFrame(rotateCamera);
 	}
 </script>
 
